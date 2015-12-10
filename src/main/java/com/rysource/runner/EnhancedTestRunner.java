@@ -82,7 +82,7 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 				if (clazz.isAnnotationPresent(SuiteInformation.class)) {
 					ReportGenerator.SUITES.put(clazz.getName(), new com.rysource.report.TestSuite(clazz.getAnnotation(SuiteInformation.class)));
 				} else {
-					Log.e(TAG, "No EnhancedTestSuite annotation found on " + className + ", Using class name.");
+					Log.e(TAG, "No SuiteInformation annotation found on " + className + ", Using class name.");
 					ReportGenerator.SUITES.put(clazz.getName(), testSuite = new com.rysource.report.TestSuite(clazz.getName()));
 				}
 			}
@@ -92,7 +92,7 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 					if (method.isAnnotationPresent(TestInformation.class)) {
 						testCase = new TestCase(result, errorHappened, stack, method.getAnnotation(TestInformation.class));
 					} else {
-						Log.e(TAG, "No EnhancedTestCase annotation found on " + methodName + ", using method name.");
+						Log.e(TAG, "No TestInformation annotation found on " + methodName + ", using method name.");
 						testCase = new TestCase(result, errorHappened, stack, methodName);
 					}
 					
@@ -115,8 +115,9 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 					}
 				}
 			}
+			Log.d(TAG, "Stored test data.");
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			Log.e(TAG, "Something went wrong\n" + e.toString());
 			return;
 		}
 	}
