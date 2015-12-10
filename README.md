@@ -16,7 +16,7 @@ the provided annotations or interfaces.
 <h3>Callbacks</h3>
 <i>Implemented using the EnhancedTestInterface</i>
 - onTestFailure (Fired upon a test failing an assertion)
-- onTestSuppressed (Fired when a test is suppressed, normally found during the start of suite execution)
+- onTestSuppressed (Fired when a test has the @Suppress annotation, normally found during the start of suite execution)
 - onTestFinished (Fired upon a test finishing)
 - onExecutionFailure (Fired when a test fails to execute completely, normally during Android system events)
 - onTestPassed (Fired when a test finishes without hitting any false assertions)
