@@ -13,6 +13,7 @@ import com.rysource.report.TestCase;
 import android.app.Activity;
 import android.os.Bundle;
 import android.test.InstrumentationTestRunner;
+import android.test.suitebuilder.annotation.Suppress;
 import android.util.Log;
 import junit.framework.TestSuite;
 
@@ -25,16 +26,18 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 	 * Abstract Methods
 	 */
 	public abstract TestSuite getTestSuites();
+
 	public abstract EnhancedTestInterface getTestInterface();
+
 	public abstract Class<?> getSetup();
-	
+
 	/*
 	 * 
 	 */
 	private AtomicBoolean listening = new AtomicBoolean(false);
 	private EnhancedTestInterface enhancedTestInterface = null;
 	private Setup setup;
-	
+
 	/*
 	 * Stored Fields
 	 */
@@ -58,7 +61,7 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 		stack = results.getString(REPORT_KEY_STACK);
 
 		if (enhancedTestInterface != null)
-		enhancedTestInterface.onTestStarted(className, methodName);
+			enhancedTestInterface.onTestStarted(className, methodName);
 	}
 
 	private void processData(int resultCode, Bundle results) {
@@ -68,34 +71,41 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 		stack = results.getString(REPORT_KEY_STACK);
 		Class<?> clazz;
 		Method[] methods;
-		
+
 		try {
 			clazz = Class.forName(className);
 			methods = clazz.getMethods();
-			
+
 			com.rysource.report.TestSuite testSuite = null;
 			com.rysource.report.TestCase testCase = null;
-			
+
 			if (ReportGenerator.SUITES.containsKey(clazz.getName())) {
 				testSuite = ReportGenerator.SUITES.get(clazz.getName());
 			} else {
 				if (clazz.isAnnotationPresent(SuiteInformation.class)) {
-					ReportGenerator.SUITES.put(clazz.getName(), new com.rysource.report.TestSuite(clazz.getAnnotation(SuiteInformation.class)));
+					ReportGenerator.SUITES.put(clazz.getName(),
+							testSuite = new com.rysource.report.TestSuite(clazz.getAnnotation(SuiteInformation.class)));
 				} else {
 					Log.e(TAG, "No SuiteInformation annotation found on " + className + ", Using class name.");
-					ReportGenerator.SUITES.put(clazz.getName(), testSuite = new com.rysource.report.TestSuite(clazz.getName()));
+					ReportGenerator.SUITES.put(clazz.getName(),
+							testSuite = new com.rysource.report.TestSuite(clazz.getName()));
+				}
+				// Check for suppression
+				for (Method method : methods) {
+					 checkForSuppressed(method, testSuite);
 				}
 			}
-			
+
 			for (Method method : methods) {
 				if (method.getName().equals(methodName)) {
 					if (method.isAnnotationPresent(TestInformation.class)) {
-						testCase = new TestCase(result, errorHappened, stack, method.getAnnotation(TestInformation.class));
+						testCase = new TestCase(result, errorHappened, stack,
+								method.getAnnotation(TestInformation.class));
 					} else {
 						Log.e(TAG, "No TestInformation annotation found on " + methodName + ", using method name.");
 						testCase = new TestCase(result, errorHappened, stack, methodName);
 					}
-					
+
 					if (testSuite != null && testCase != null) {
 						if (enhancedTestInterface != null) {
 							if (!result && !errorHappened) {
@@ -109,9 +119,9 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 								enhancedTestInterface.onTestFinished(result, className, methodName);
 							}
 						}
-						
+
 						// TODO - Store Test Result in database
-						
+
 					}
 				}
 			}
@@ -119,6 +129,22 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 		} catch (ClassNotFoundException e) {
 			Log.e(TAG, "Something went wrong\n" + e.toString());
 			return;
+		}
+	}
+
+	private void checkForSuppressed(Method method, com.rysource.report.TestSuite testSuite) {
+		if (method.isAnnotationPresent(Suppress.class)) {
+			com.rysource.report.TestCase testCase = null;
+
+			if (method.isAnnotationPresent(TestInformation.class)) {
+				testCase = new TestCase(result, errorHappened, stack, method.getAnnotation(TestInformation.class));
+			} else {
+				Log.e(TAG, "No TestInformation annotation found on " + methodName + ", using method name.");
+				testCase = new TestCase(result, errorHappened, stack, methodName);
+			}
+			if (enhancedTestInterface != null)
+				enhancedTestInterface.onTestSuppressed(className, methodName);
+			testSuite.addTestCase(testCase);
 		}
 	}
 
@@ -130,18 +156,18 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 				result = true;
 				processData(resultCode, results);
 				break;
-				
+
 			case REPORT_VALUE_RESULT_ERROR:
 				errorHappened = true;
 				result = false;
 				processData(resultCode, results);
 				break;
-				
+
 			case REPORT_VALUE_RESULT_FAILURE:
 				result = false;
 				processData(resultCode, results);
 				break;
-				
+
 			case REPORT_VALUE_RESULT_START:
 				resetAttributes();
 				sendStartNotification(results);
@@ -161,30 +187,27 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 		if (!listening.get()) {
 			Log.i(TAG, HEADER);
 			listening.set(true);
-		}
-		
-		// TODO - Add Shutdown Hook
-		
-		/*
-		 * Check Abstract Methods
-		 */
-		if (setup == null) {
-			if (getSetup().isAnnotationPresent(Setup.class)) {
-				setup = getSetup().getAnnotation(Setup.class);
-				Log.d(TAG, "Setup Annotation was found on classpath");
-			} else {
-				Log.e(TAG, "No Setup Annotation was found... Did you forget to annotate your runner with this?");
+			/*
+			 * Check Abstract Methods
+			 */
+			if (setup == null) {
+				if (getSetup().isAnnotationPresent(Setup.class)) {
+					setup = getSetup().getAnnotation(Setup.class);
+					Log.d(TAG, "Setup Annotation was found on classpath");
+				} else {
+					Log.e(TAG, "No Setup Annotation was found... Did you forget to annotate your runner with this?");
+				}
+			}
+
+			if (enhancedTestInterface == null) {
+				if ((enhancedTestInterface = getTestInterface()) != null) {
+					Log.d(TAG, "Test Interface found on classpath");
+				} else {
+					Log.e(TAG, "No Test Interface was found... Did you forget to implement this?");
+				}
 			}
 		}
-		
-		if (enhancedTestInterface == null) {
-			if ((enhancedTestInterface = getTestInterface()) != null) {
-				Log.d(TAG, "Test Interface found on classpath");
-			} else {
-				Log.e(TAG, "No Test Interface was found... Did you forget to implement this?");
-			}
-		}
-		
+
 		super.callActivityOnStart(activity);
 	}
 }

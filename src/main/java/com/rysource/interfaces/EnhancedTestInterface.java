@@ -6,6 +6,8 @@ public interface EnhancedTestInterface {
 	
 	public void onTestStarted(String className, String methodName);
 	
+	public void onTestSuppressed(String className, String methodName);
+	
 	public void onTestFailure(String className, String methodName, String stack);
 	
 	public void onTestPassed(String className, String methodName);
