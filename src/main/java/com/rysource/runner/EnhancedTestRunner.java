@@ -47,7 +47,10 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 	private String stack;
 	private String result;
 	private boolean errorHappened;
-
+	
+	private int currentTests = 0;
+	private int totalTests = 1;
+	
 	private void resetAttributes() {
 		className = "";
 		methodName = "";
@@ -109,6 +112,7 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 					}
 
 					if (testSuite != null && testCase != null) {
+						testSuite.addTestCase(testCase);
 						if (enhancedTestInterface != null) {
 							if ((result.equals("Failed")) && !errorHappened) {
 								enhancedTestInterface.onTestFailure(className, methodName, stack);
@@ -125,13 +129,23 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 
 							}
 						}
-
 						// TODO - Store Test Result in database
 
 					}
 				}
 			}
+			
 			Log.d(TAG, "Stored test data.");
+			
+			// Finalise
+			if (currentTests == totalTests) {
+				Log.i(TAG, "Finalising Test Cases");
+				if (setup != null) {
+					Log.i(TAG, "Outputting report if defined in Setup");
+					new ReportGenerator(setup).start();
+				}
+			}
+			
 		} catch (ClassNotFoundException e) {
 			Log.e(TAG, "Something went wrong\n" + e.toString());
 			return;
@@ -181,18 +195,13 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 				break;
 			}
 		}
+		
+		if (results.containsKey(REPORT_KEY_NUM_CURRENT))
+			this.currentTests = results.getInt(REPORT_KEY_NUM_CURRENT);
+		if (results.containsKey(REPORT_KEY_NUM_TOTAL))
+			this.totalTests = results.getInt(REPORT_KEY_NUM_TOTAL);
+		
 		super.sendStatus(resultCode, results);
-	}
-
-	@Override
-	public TestSuite getAllTests() {
-		// Add on shutdown
-//		Log.i(TAG, "Finalising Test Cases");
-//		if (setup != null) {
-//			Log.i(TAG, "Outputting report if defined in Setup");
-//			new ReportGenerator(setup).start();
-//		}
-		return getTestSuites();
 	}
 	
 	@Override
