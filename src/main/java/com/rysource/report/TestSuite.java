@@ -9,64 +9,66 @@ public class TestSuite {
 
 	private ArrayList<TestCase> testCases = new ArrayList<TestCase>();
 
-	private String suiteName;
-	private String suiteDescription;
-	private SuitePriority suitePriority;
-	private String[] suiteAcceptanceCriteria;
+	private String name;
+	private String description;
+	private SuitePriority priority;
+	private String[] acceptanceCriteria;
 
 	public TestSuite(SuiteInformation ets) {
-		this.suiteName = ets.suiteName();
-		this.suiteDescription = ets.suiteDescription();
-		this.suitePriority = ets.priority();
-		this.suiteAcceptanceCriteria = ets.suiteAcceptanceCriteria();
+		this.name = ets.suiteName();
+		this.description = ets.suiteDescription();
+		this.priority = ets.priority();
+		this.acceptanceCriteria = ets.suiteAcceptanceCriteria();
 	}
-
+	
 	public TestSuite(String name) {
-		this.suiteName = name;
-	}
-
-	public ArrayList<TestCase> getTestCases() {
-		return this.testCases;
+		this.name = name;
 	}
 
 	public void addTestCase(TestCase testCase) {
-		testCases.add(testCase);
+		if (this.testCases != null) {
+			testCases.add(testCase);
+		}
 	}
 
-	public String getSuiteName() {
-		return suiteName;
-	}
-
-	public void setSuiteName(String suiteName) {
-		this.suiteName = suiteName;
-	}
-
-	public String getSuiteDescription() {
-		return suiteDescription;
-	}
-
-	public void setSuiteDescription(String suiteDescription) {
-		this.suiteDescription = suiteDescription;
-	}
-
-	public SuitePriority getSuitePriority() {
-		return suitePriority;
-	}
-
-	public void setSuitePriority(SuitePriority suitePriority) {
-		this.suitePriority = suitePriority;
-	}
-
-	public String[] getSuiteAcceptanceCriteria() {
-		return suiteAcceptanceCriteria;
-	}
-
-	public void setSuiteAcceptanceCriteria(String[] suiteAcceptanceCriteria) {
-		this.suiteAcceptanceCriteria = suiteAcceptanceCriteria;
+	public ArrayList<TestCase> getTestCases() {
+		return testCases;
 	}
 
 	public void setTestCases(ArrayList<TestCase> testCases) {
 		this.testCases = testCases;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public SuitePriority getPriority() {
+		return priority;
+	}
+
+	public void setPriority(SuitePriority priority) {
+		this.priority = priority;
+	}
+
+	public String[] getAcceptanceCriteria() {
+		return acceptanceCriteria;
+	}
+
+	public void setAcceptanceCriteria(String[] acceptanceCriteria) {
+		this.acceptanceCriteria = acceptanceCriteria;
 	}
 
 }

@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 public @interface Setup {
 
 	public enum ReportType {
-		EXCEL_REPORT
+		JUNIT_XML
 	}
 
 	ReportType[] reportType() default {};

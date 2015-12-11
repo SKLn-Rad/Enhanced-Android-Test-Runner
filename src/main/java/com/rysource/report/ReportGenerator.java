@@ -7,7 +7,8 @@ import java.util.HashMap;
 import com.rysource.annotations.Setup;
 import com.rysource.annotations.Setup.ReportType;
 
-import junit.framework.TestSuite;
+import android.os.Environment;
+import android.util.Log;
 
 /**
  * INTERNAL USE ONLY.
@@ -18,39 +19,41 @@ public class ReportGenerator extends Thread {
 
 	private static Setup setup;
 	
-	private static String path = "";
+	private static String path = Environment.getExternalStorageDirectory().getAbsolutePath();
 	private static File outputFile;
 	
-	public static final HashMap<String, com.rysource.report.TestSuite> SUITES = new HashMap<String, com.rysource.report.TestSuite>();
+	public static final HashMap<String, TestSuite> SUITES = new HashMap<String, TestSuite>();
+
+	private static final String TAG = "ReportGenerator";
 	
 	public ReportGenerator(Setup setup) {
 		ReportGenerator.setup = setup;
+		start();
 	}
 	
 	@Override
 	public synchronized void start() {
 		// Detect Settings for Report Type
-		System.out.println("Finished testing. getting reportable data from annotations...");
+		Log.i(TAG, "Finished testing. getting reportable data from annotations...");
 		if (SUITES == null) {
-			System.out.println("Something went wrong, could not generate report.");
+			Log.e(TAG, "Something went wrong, could not generate report.");
 			return;
-		} else {
-			
 		}
 		
-		System.out.println();
-		System.out.println("Preparing report...");
+		Log.d(TAG, "Preparing report...");
+		
 		prepareReport();
 		super.start();
 	}
 
 	private static void prepareFilePath(String reportName) {
-		System.out.println("Preparing new report");
+		Log.d(TAG, "Preparing new report");
 		if (new File(path + reportName).exists()) {
-			System.out.println("Found old test, deleting.");
+		Log.i(TAG, "Found old test, deleting.");
 			new File(path).delete();
 		}
-		System.out.println("Outputting report to " + new File(path).getAbsolutePath() + File.separator + reportName);
+		
+		Log.i(TAG, "Outputting report to " + new File(path).getAbsolutePath() + File.separator + reportName);
 		outputFile = new File(path + reportName);
 
 		try {
@@ -63,7 +66,7 @@ public class ReportGenerator extends Thread {
 	private void prepareReport() {
 		for (ReportType report : setup.reportType()) {
 			switch (report) {
-			case EXCEL_REPORT:
+			case JUNIT_XML:
 				break;
 			default:
 				break;

@@ -6,51 +6,51 @@ import com.rysource.annotations.TestInformation.TestType;
 
 public class TestCase {
 
-	private String testName;
-	private String testDescription;
+	private String name;
+	private String description;
 	private String expectedBehaviour;
 
-	private TestPriority testPriority;
-	private TestType testType;
+	private TestPriority priority;
+	private TestType type;
 
-	private boolean result;
+	private String result;
 	private boolean error;
 	private String stack;
 
-	public TestCase(boolean result, boolean error, String stack, TestInformation etc) {
+	public TestCase(String result, boolean error, String stack, TestInformation etc) {
 		this.result = result;
 		this.error = error;
 		this.stack = stack;
 
-		this.testName = etc.testName();
-		this.testDescription = etc.testDescription();
+		this.name = etc.testName();
+		this.description = etc.testDescription();
 		this.expectedBehaviour = etc.expectedBehaviour();
 
-		this.testPriority = etc.priority();
-		this.testType = etc.type();
+		this.priority = etc.priority();
+		this.type = etc.type();
 	}
 
-	public TestCase(boolean result, boolean error, String stack, String name) {
+	public TestCase(String result, boolean error, String stack, String name) {
 		this.result = result;
 		this.error = error;
 		this.stack = stack;
-		this.testName = name;
+		this.name = name;
 	}
 
-	public String getTestName() {
-		return testName;
+	public String getName() {
+		return name;
 	}
 
-	public void setTestName(String testName) {
-		this.testName = testName;
+	public void setName(String name) {
+		this.name = name;
 	}
 
-	public String getTestDescription() {
-		return testDescription;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setTestDescription(String testDescription) {
-		this.testDescription = testDescription;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public String getExpectedBehaviour() {
@@ -61,27 +61,27 @@ public class TestCase {
 		this.expectedBehaviour = expectedBehaviour;
 	}
 
-	public TestPriority getTestPriority() {
-		return testPriority;
+	public TestPriority getPriority() {
+		return priority;
 	}
 
-	public void setTestPriority(TestPriority testPriority) {
-		this.testPriority = testPriority;
+	public void setPriority(TestPriority priority) {
+		this.priority = priority;
 	}
 
-	public TestType getTestType() {
-		return testType;
+	public TestType getType() {
+		return type;
 	}
 
-	public void setTestType(TestType testType) {
-		this.testType = testType;
+	public void setType(TestType type) {
+		this.type = type;
 	}
 
-	public boolean isResult() {
+	public String isResult() {
 		return result;
 	}
 
-	public void setResult(boolean result) {
+	public void setResult(String result) {
 		this.result = result;
 	}
 

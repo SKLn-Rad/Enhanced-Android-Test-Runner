@@ -44,14 +44,14 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 	private String className;
 	private String methodName;
 	private String stack;
-	private boolean result;
+	private String result;
 	private boolean errorHappened;
 
 	private void resetAttributes() {
 		className = "";
 		methodName = "";
 		stack = "";
-		result = false;
+		result = "Failed";
 		errorHappened = false;
 	}
 
@@ -90,9 +90,10 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 					ReportGenerator.SUITES.put(clazz.getName(),
 							testSuite = new com.rysource.report.TestSuite(clazz.getName()));
 				}
+
 				// Check for suppression
 				for (Method method : methods) {
-					 checkForSuppressed(method, testSuite);
+					checkForSuppressed(method, testSuite);
 				}
 			}
 
@@ -108,7 +109,7 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 
 					if (testSuite != null && testCase != null) {
 						if (enhancedTestInterface != null) {
-							if (!result && !errorHappened) {
+							if ((result.equals("Failed")) && !errorHappened) {
 								enhancedTestInterface.onTestFailure(className, methodName, stack);
 							} else if (!errorHappened) {
 								enhancedTestInterface.onTestPassed(className, methodName);
@@ -116,7 +117,11 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 							if (errorHappened) {
 								enhancedTestInterface.onExecutionFailure(className, methodName, stack);
 							} else {
-								enhancedTestInterface.onTestFinished(result, className, methodName);
+								if (result.equals("Failed"))
+									enhancedTestInterface.onTestFinished(false, className, methodName);
+								else
+									enhancedTestInterface.onTestFinished(true, className, methodName);
+
 							}
 						}
 
@@ -137,7 +142,8 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 			com.rysource.report.TestCase testCase = null;
 
 			if (method.isAnnotationPresent(TestInformation.class)) {
-				testCase = new TestCase(result, errorHappened, stack, method.getAnnotation(TestInformation.class));
+				testCase = new TestCase(result, errorHappened, stack,
+						method.getAnnotation(TestInformation.class));
 			} else {
 				Log.e(TAG, "No TestInformation annotation found on " + methodName + ", using method name.");
 				testCase = new TestCase(result, errorHappened, stack, methodName);
@@ -153,18 +159,18 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 		if (listening.get()) {
 			switch (resultCode) {
 			case REPORT_VALUE_RESULT_OK:
-				result = true;
+				result = "Passed";
 				processData(resultCode, results);
 				break;
 
 			case REPORT_VALUE_RESULT_ERROR:
 				errorHappened = true;
-				result = false;
+				result = "Failed";
 				processData(resultCode, results);
 				break;
 
 			case REPORT_VALUE_RESULT_FAILURE:
-				result = false;
+				result = "Failed";
 				processData(resultCode, results);
 				break;
 
@@ -187,12 +193,11 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 		if (!listening.get()) {
 			Log.i(TAG, HEADER);
 			listening.set(true);
-			/*
-			 * Check Abstract Methods
-			 */
+
 			if (setup == null) {
 				if (getSetup().isAnnotationPresent(Setup.class)) {
 					setup = getSetup().getAnnotation(Setup.class);
+					Runtime.getRuntime().addShutdownHook(new ReportGenerator(setup));
 					Log.d(TAG, "Setup Annotation was found on classpath");
 				} else {
 					Log.e(TAG, "No Setup Annotation was found... Did you forget to annotate your runner with this?");
