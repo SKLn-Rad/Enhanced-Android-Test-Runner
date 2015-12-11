@@ -12,7 +12,6 @@ import com.rysource.report.TestCase;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.test.AndroidTestRunner;
 import android.test.InstrumentationTestRunner;
 import android.test.suitebuilder.annotation.Suppress;
 import android.util.Log;
