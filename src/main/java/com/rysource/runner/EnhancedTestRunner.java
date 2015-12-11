@@ -12,6 +12,7 @@ import com.rysource.report.TestCase;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.test.AndroidTestRunner;
 import android.test.InstrumentationTestRunner;
 import android.test.suitebuilder.annotation.Suppress;
 import android.util.Log;
@@ -100,11 +101,11 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 			for (Method method : methods) {
 				if (method.getName().equals(methodName)) {
 					if (method.isAnnotationPresent(TestInformation.class)) {
-						testCase = new TestCase(result, errorHappened, stack,
+						testCase = new TestCase(result, errorHappened, stack, false,
 								method.getAnnotation(TestInformation.class));
 					} else {
 						Log.e(TAG, "No TestInformation annotation found on " + methodName + ", using method name.");
-						testCase = new TestCase(result, errorHappened, stack, methodName);
+						testCase = new TestCase(result, errorHappened, stack, false, methodName);
 					}
 
 					if (testSuite != null && testCase != null) {
@@ -142,11 +143,11 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 			com.rysource.report.TestCase testCase = null;
 
 			if (method.isAnnotationPresent(TestInformation.class)) {
-				testCase = new TestCase(result, errorHappened, stack,
+				testCase = new TestCase(result, errorHappened, stack, true, 
 						method.getAnnotation(TestInformation.class));
 			} else {
 				Log.e(TAG, "No TestInformation annotation found on " + methodName + ", using method name.");
-				testCase = new TestCase(result, errorHappened, stack, methodName);
+				testCase = new TestCase(result, errorHappened, stack, true, methodName);
 			}
 			if (enhancedTestInterface != null)
 				enhancedTestInterface.onTestSuppressed(className, methodName);
@@ -185,19 +186,24 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 
 	@Override
 	public TestSuite getAllTests() {
+		// Add on shutdown
+//		Log.i(TAG, "Finalising Test Cases");
+//		if (setup != null) {
+//			Log.i(TAG, "Outputting report if defined in Setup");
+//			new ReportGenerator(setup).start();
+//		}
 		return getTestSuites();
 	}
-
+	
 	@Override
 	public void callActivityOnStart(Activity activity) {
 		if (!listening.get()) {
 			Log.i(TAG, HEADER);
 			listening.set(true);
-
+			
 			if (setup == null) {
 				if (getSetup().isAnnotationPresent(Setup.class)) {
 					setup = getSetup().getAnnotation(Setup.class);
-					Runtime.getRuntime().addShutdownHook(new ReportGenerator(setup));
 					Log.d(TAG, "Setup Annotation was found on classpath");
 				} else {
 					Log.e(TAG, "No Setup Annotation was found... Did you forget to annotate your runner with this?");

@@ -28,7 +28,6 @@ public class ReportGenerator extends Thread {
 	
 	public ReportGenerator(Setup setup) {
 		ReportGenerator.setup = setup;
-		start();
 	}
 	
 	@Override
@@ -63,10 +62,13 @@ public class ReportGenerator extends Thread {
 		}
 	}
 	
+	// MUST HAVE <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>+
 	private void prepareReport() {
 		for (ReportType report : setup.reportType()) {
 			switch (report) {
 			case JUNIT_XML:
+				prepareFilePath("junit_report.xml");
+				JUnitReport.generateJUnitReport(new File(path + File.separator + "junit_report.xml"));
 				break;
 			default:
 				break;

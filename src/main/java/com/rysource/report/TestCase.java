@@ -1,5 +1,8 @@
 package com.rysource.report;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
 import com.rysource.annotations.TestInformation;
 import com.rysource.annotations.TestInformation.TestPriority;
 import com.rysource.annotations.TestInformation.TestType;
@@ -13,28 +16,36 @@ public class TestCase {
 	private TestPriority priority;
 	private TestType type;
 
+	private Timestamp timestamp;
+
+	private boolean suppressed;
 	private String result;
 	private boolean error;
 	private String stack;
 
-	public TestCase(String result, boolean error, String stack, TestInformation etc) {
+	public TestCase(String result, boolean error, String stack, boolean suppressed, TestInformation etc) {
 		this.result = result;
 		this.error = error;
 		this.stack = stack;
-
+		this.suppressed = suppressed;
+		
 		this.name = etc.testName();
 		this.description = etc.testDescription();
 		this.expectedBehaviour = etc.expectedBehaviour();
 
 		this.priority = etc.priority();
 		this.type = etc.type();
+
+		this.timestamp = new Timestamp(new Date().getTime());
 	}
 
-	public TestCase(String result, boolean error, String stack, String name) {
+	public TestCase(String result, boolean error, String stack, boolean suppressed, String name) {
 		this.result = result;
 		this.error = error;
 		this.stack = stack;
 		this.name = name;
+		this.timestamp = new Timestamp(new Date().getTime());
+		this.suppressed = suppressed;
 	}
 
 	public String getName() {
@@ -99,6 +110,26 @@ public class TestCase {
 
 	public void setStack(String stack) {
 		this.stack = stack;
+	}
+
+	public Timestamp getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(Timestamp timestamp) {
+		this.timestamp = timestamp;
+	}
+
+	public String getResult() {
+		return result;
+	}
+
+	public boolean isSuppressed() {
+		return suppressed;
+	}
+
+	public void setSuppressed(boolean suppressed) {
+		this.suppressed = suppressed;
 	}
 
 }
