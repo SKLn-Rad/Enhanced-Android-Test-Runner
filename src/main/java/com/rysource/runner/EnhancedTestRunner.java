@@ -46,10 +46,10 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 	private String stack;
 	private String result;
 	private boolean errorHappened;
-	
+
 	private int currentTests = 0;
 	private int totalTests = 1;
-	
+
 	private void resetAttributes() {
 		className = "";
 		methodName = "";
@@ -103,11 +103,11 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 			for (Method method : methods) {
 				if (method.getName().equals(methodName)) {
 					if (method.isAnnotationPresent(TestInformation.class)) {
-						testCase = new TestCase(result, errorHappened, stack, false,
+						testCase = new TestCase(result, errorHappened, stack, false, className,
 								method.getAnnotation(TestInformation.class));
 					} else {
 						Log.e(TAG, "No TestInformation annotation found on " + methodName + ", using method name.");
-						testCase = new TestCase(result, errorHappened, stack, false, methodName);
+						testCase = new TestCase(result, errorHappened, stack, false, className, methodName);
 					}
 
 					if (testSuite != null && testCase != null) {
@@ -133,9 +133,9 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 					}
 				}
 			}
-			
+
 			Log.d(TAG, "Stored test data.");
-			
+
 			// Finalise
 			if (currentTests == totalTests) {
 				Log.i(TAG, "Finalising Test Cases");
@@ -144,7 +144,7 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 					new ReportGenerator(setup).start();
 				}
 			}
-			
+
 		} catch (ClassNotFoundException e) {
 			Log.e(TAG, "Something went wrong\n" + e.toString());
 			return;
@@ -156,11 +156,11 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 			com.rysource.report.TestCase testCase = null;
 
 			if (method.isAnnotationPresent(TestInformation.class)) {
-				testCase = new TestCase(result, errorHappened, stack, true, 
+				testCase = new TestCase("Passed", false, "", true, className,
 						method.getAnnotation(TestInformation.class));
 			} else {
 				Log.e(TAG, "No TestInformation annotation found on " + methodName + ", using method name.");
-				testCase = new TestCase(result, errorHappened, stack, true, methodName);
+				testCase = new TestCase("Passed", false, "", true, className, method.getName());
 			}
 			if (enhancedTestInterface != null)
 				enhancedTestInterface.onTestSuppressed(className, methodName);
@@ -194,21 +194,21 @@ public abstract class EnhancedTestRunner extends InstrumentationTestRunner {
 				break;
 			}
 		}
-		
+
 		if (results.containsKey(REPORT_KEY_NUM_CURRENT))
 			this.currentTests = results.getInt(REPORT_KEY_NUM_CURRENT);
 		if (results.containsKey(REPORT_KEY_NUM_TOTAL))
 			this.totalTests = results.getInt(REPORT_KEY_NUM_TOTAL);
-		
+
 		super.sendStatus(resultCode, results);
 	}
-	
+
 	@Override
 	public void callActivityOnStart(Activity activity) {
 		if (!listening.get()) {
 			Log.i(TAG, HEADER);
 			listening.set(true);
-			
+
 			if (setup == null) {
 				if (getSetup().isAnnotationPresent(Setup.class)) {
 					setup = getSetup().getAnnotation(Setup.class);

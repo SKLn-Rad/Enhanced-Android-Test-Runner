@@ -63,6 +63,34 @@ public class JUnitReport {
 				xmlSerializer.attribute(null, "time", "0");
 				xmlSerializer.attribute(null, "timestamp", String.valueOf(suite.getTimestamp()));
 				
+				for (TestCase testCase : suite.getTestCases()) {
+					xmlSerializer.startTag(null, "testcase");
+					xmlSerializer.attribute(null, "classname", testCase.getClassName());
+					xmlSerializer.attribute(null, "name", testCase.getName());
+					
+					// TODO - Get Time
+					xmlSerializer.attribute(null, "time", "0");
+					
+					if (testCase.isSuppressed()) {
+						xmlSerializer.startTag(null, "skipped");
+						xmlSerializer.endTag(null, "skipped");
+					} else {
+						if (testCase.isError()) {
+							xmlSerializer.startTag(null, "error");
+							xmlSerializer.attribute(null, "message", testCase.getExpectedBehaviour());
+							xmlSerializer.text(testCase.getStack());
+							xmlSerializer.endTag(null, "error");
+						} else if (testCase.isResult().equals("Failed")) {
+							xmlSerializer.startTag(null, "failure");
+							xmlSerializer.attribute(null, "message", testCase.getExpectedBehaviour());
+							xmlSerializer.text(testCase.getStack());
+							xmlSerializer.endTag(null, "failure");
+						}
+					}
+					
+					xmlSerializer.endTag(null, "testcase");
+				}
+				
 				xmlSerializer.attribute(null, "tests", String.valueOf(suite.getTestCases().size()));
 				xmlSerializer.endTag(null, "testsuite");
 			}

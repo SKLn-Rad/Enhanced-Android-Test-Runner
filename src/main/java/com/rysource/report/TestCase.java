@@ -9,6 +9,7 @@ import com.rysource.annotations.TestInformation.TestType;
 
 public class TestCase {
 
+	private String className;
 	private String name;
 	private String description;
 	private String expectedBehaviour;
@@ -23,29 +24,31 @@ public class TestCase {
 	private boolean error;
 	private String stack;
 
-	public TestCase(String result, boolean error, String stack, boolean suppressed, TestInformation etc) {
+	public TestCase(String result, boolean error, String stack, boolean suppressed, String className, TestInformation etc) {
 		this.result = result;
 		this.error = error;
 		this.stack = stack;
 		this.suppressed = suppressed;
-		
+
 		this.name = etc.testName();
 		this.description = etc.testDescription();
 		this.expectedBehaviour = etc.expectedBehaviour();
-
+		this.className = className;
+		
 		this.priority = etc.priority();
 		this.type = etc.type();
 
 		this.timestamp = new Timestamp(new Date().getTime());
 	}
 
-	public TestCase(String result, boolean error, String stack, boolean suppressed, String name) {
+	public TestCase(String result, boolean error, String stack, boolean suppressed, String className, String name) {
 		this.result = result;
 		this.error = error;
 		this.stack = stack;
 		this.name = name;
 		this.timestamp = new Timestamp(new Date().getTime());
 		this.suppressed = suppressed;
+		this.className = className;
 	}
 
 	public String getName() {
@@ -130,6 +133,14 @@ public class TestCase {
 
 	public void setSuppressed(boolean suppressed) {
 		this.suppressed = suppressed;
+	}
+
+	public String getClassName() {
+		return className;
+	}
+
+	public void setClassName(String className) {
+		this.className = className;
 	}
 
 }
